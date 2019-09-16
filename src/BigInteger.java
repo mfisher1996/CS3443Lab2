@@ -9,8 +9,11 @@ public class BigInteger {
 		length = a.length;
 		int b = length - 1;
 		for(int i = 999; i>length-1; i--) {
+			if (b>=0) {
 			Num[i] = a[b];
 			b--;
+			}else
+				break;
 		}
 	}
 	
@@ -63,7 +66,7 @@ public class BigInteger {
 	 */
 	public BigInteger(long n) {
 		Num = new char[1000];
-		String b = ""+n+"";
+		String b = ""+n;
 		setNum(b.toCharArray());
 		
 	}
@@ -79,8 +82,8 @@ public class BigInteger {
 	 * 
 	 */
 	public void show() {
-		for(int i = 0; i<length; i++) {
-			System.out.print(Num[i]);
+		for(int i = length - 1; i>=0; i--) {
+			System.out.print(Num[999-i]);
 		}
 		System.out.println();
 	}
@@ -99,9 +102,9 @@ public class BigInteger {
 	 * @param len
 	 * @return
 	 */
-	private char[] push(char[] a, int len) {
-		char ret[] = new char[1000];
-		for(int i = len+1; i >0; i--) {
+	private char[] push(char[] a) {
+		char ret[] = new char[a.length+1];
+		for(int i = a.length; i >0; i--) {
 			ret[i] = a[i-1];
 		}
 		return ret;
@@ -112,12 +115,40 @@ public class BigInteger {
 	 * @return
 	 */
 	public BigInteger add(BigInteger a) {
-		int end = 999 - length, bigLen; 									// index for the largest value diget of the bigint
-		char[] b = new char[1000];
-		boolean carry=false, sLen = (this.length == a.length);
-		//This was added in branch "feature"
-		and this;
+		int bigLen; 														// index for the largest value digit of the bigint
 		
+		boolean carry=false, sLen = (this.length == a.length), bigger = 
+				(this.length > a.length);									// carry will hold is any two chars at index add to > 10
+																			// sLen will be true only if length is equal
+		bigLen = (sLen)? length: (bigger)? this.length:a.length;			// bigLen will hold the value of length for whichever is larger
+		char [] b = new char[bigLen+1];
+		int small = (bigger)? a.length: length;								// small will hold the smaller length
+		
+		for(int i = 0; i<bigLen; i++) {										// will iterate until i == bigLen - 1
+			String value = "";
+			if(i<small) {													// as long as i is less the smaller length
+				int num = (toNumb(Num[999-i])+toNumb(a.Num[999-i]));		// add two values at index 99 - i and set num to that
+				value = ""+num%10;											// convert num%10 to string 
+				carry =(num>=10);											// set carry to true if two digits are greater than 10
+			}else if(carry){
+				int num = (bigger)? toNumb(this.Num[999- i]): toNumb(a.Num[999-i]);
+				num++;
+				carry =(num >= 10);
+				value = ""+num%10;
+			}
+			else {
+				int num = (bigger)? toNumb(this.Num[999- i]): toNumb(a.Num[999-i]);
+				value = ""+num%10;
+			}
+			// System.out.println(value.toCharArray()[0]+ "i:" + i);
+			b[bigLen-(i+1)] = value.toCharArray()[0];
+		}
+		if(carry){
+			String value = ""+1;
+			b = push(b);
+			b[0] = value.toCharArray()[0];
+		
+		}
 		/*
 		int diff, num;						// bigLen holds the value of len for the longer big int
 		
@@ -173,14 +204,14 @@ public class BigInteger {
 	
 	
 	public static void main(String[] args) {
-		BigInteger x = new BigInteger(12345);
-		BigInteger y = new BigInteger(90000);
+		BigInteger x = new BigInteger("999");
+		BigInteger y = new BigInteger("999");
 		BigInteger z;
 		x.show();
 		y.show();
 		z = x.add(y);
 		z.show();
-		System.out.println("end");
+		System.out.println("end");			// TODO fix carry for 9's
 	}
 	
 	/*
