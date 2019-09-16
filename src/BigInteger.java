@@ -5,15 +5,19 @@ public class BigInteger {
 	private int length;
 	private char Num[];			// Num[999] == ones place Num[998] == Tens , so on
 	
-	private void setNum(char a[]) {
-		length = a.length;
-		int b = length - 1;
-		for(int i = 999; i>length-1; i--) {
-			if (b>=0) {
+	private void setNum(char a[]) { //a[] == {1,2,3,4,5} then Num[i==999 - iteration] == a[a.length - 1 - iteration] while (999-iteration > a.length - 1)
+		length = 0;
+		int b = a.length - 1;
+		for(int i = 999; i>a.length-1; i--) {
+			if (b>=0 && toNumb(a[b])!= -99) {
 			Num[i] = a[b];
 			b--;
-			}else
-				break;
+			length++;
+			}else if(b>=0)
+				b--;
+			else{
+				return;
+			}
 		}
 	}
 	
@@ -40,7 +44,7 @@ public class BigInteger {
 			case '9':
 				return 9;
 		}
-		return 0;
+		return -99;
 		
 	}
 	/**
@@ -82,7 +86,7 @@ public class BigInteger {
 	 * 
 	 */
 	public void show() {
-		for(int i = length - 1; i>=0; i--) {
+		for(int i = length; i>=0; i--) {
 			System.out.print(Num[999-i]);
 		}
 		System.out.println();
@@ -126,77 +130,34 @@ public class BigInteger {
 		
 		for(int i = 0; i<bigLen; i++) {										// will iterate until i == bigLen - 1
 			String value = "";
-			if(i<small) {													// as long as i is less the smaller length
+			if(i<small && !carry) {											// as long as i is less the smaller length and there's no carry
 				int num = (toNumb(Num[999-i])+toNumb(a.Num[999-i]));		// add two values at index 99 - i and set num to that
 				value = ""+num%10;											// convert num%10 to string 
 				carry =(num>=10);											// set carry to true if two digits are greater than 10
-			}else if(carry){
-				int num = (bigger)? toNumb(this.Num[999- i]): toNumb(a.Num[999-i]);
-				num++;
-				carry =(num >= 10);
-				value = ""+num%10;
+			}else if (i<small && carry){									// as long as i is less the smaller length and there's a carry
+				int num = (toNumb(Num[999-i])+toNumb(a.Num[999-i])+1);		// add two values at index 99 - i and set num to that + 1 (for carry)
+				value = ""+num%10;											// convert num%10 to string 
+				carry =(num>=10);
+			}else if(carry){												// only executes at the last index if carry == true
+				int num = (bigger)? toNumb(this.Num[999- i]): toNumb(a.Num[999-i]);	// if this.length is bigger num = Num at current index otherwise sets to a.Num
+				num++;														// num is iterated 
+				carry =(num >= 10);											// num might have been 9
+				value = ""+num%10;											// set value to num for conversion to char
 			}
-			else {
+			else {															// if not carry at the last index
 				int num = (bigger)? toNumb(this.Num[999- i]): toNumb(a.Num[999-i]);
-				value = ""+num%10;
+				value = ""+num%10;											// set value to the digit in the array
 			}
 			// System.out.println(value.toCharArray()[0]+ "i:" + i);
-			b[bigLen-(i+1)] = value.toCharArray()[0];
+			b[bigLen-(i+1)] = value.toCharArray()[0];						// the array b must be in reverse order to work with the BigInteger(char[]) Constructor
 		}
-		if(carry){
-			String value = ""+1;
-			b = push(b);
-			b[0] = value.toCharArray()[0];
+		if(carry){															// executes if the last value is reached and there is still a carry
+			String value = ""+1;											
+			b = push(b);													// extends the array by 1
+			b[0] = value.toCharArray()[0];									// sets largest digit to 1
 		
 		}
-		/*
-		int diff, num;						// bigLen holds the value of len for the longer big int
 		
-		if(!sLen){										// lengths are not the same
-			if(isBiggerThan(a)) {						// find the longest length to find where the addition needs to start.
-				bigLen = this.length;
-				diff = this.length - a.length;
-			}
-			else {
-				bigLen = a.length;
-				diff = a.length - this.length;
-			}
-			for(int i = bigLen-1; i>=0; i--) {				// Num[5] = {'1','2','3','4','5'} + a.Num[2] = {'1','0'}
-				//System.out.println(i);
-				if(i!= 0) {
-					if(i-diff>=0)							// num should exit this conditional holding the value of current place this plus
-						num = toNumb(this.Num[i]) + toNumb(a.Num[i-diff]);	// current place a or the value of current place a or this
-					else if(isBiggerThan(a))
-						num = toNumb(this.Num[i]);
-					else
-						num = toNumb(a.Num[i]);
-					if(carry)								// if last addition was greater than 10 then current must be iterated
-						num++;
-					carry = (num >= 10);					// if current addition is greater than 10 then next must be iterated
-					b[i] = (char)(num%10);
-				}else if (carry) {
-					b = push(b, bigLen);
-					b[0] = 1;
-				}else if(this.length == a.length) {
-					num = toNumb(this.Num[0]) +toNumb(a.Num[0]);
-				}else
-					b[0] = (isBiggerThan(a))? Num[0]: a.Num[0];	// TODO num must be resolved for i = 0 if both BigInt are equal		
-			}
-		}else	{												// lengths are the same
-			for(int i = length-1; i>0; i--) {
-				num = toNumb(this.Num[i]) + toNumb(a.Num[i]);
-				if(carry)
-					num++;
-				carry = (num>=10);
-				if(i==0) {
-					
-				}else
-					b[i] = (char)(num%10);
-				
-			}
-		}
-		*/
-			
 		return new BigInteger(b);
 		
 	}
@@ -211,7 +172,7 @@ public class BigInteger {
 		y.show();
 		z = x.add(y);
 		z.show();
-		System.out.println("end");			// TODO fix carry for 9's
+		System.out.println("end");	
 	}
 	
 	/*
