@@ -1,4 +1,4 @@
-import playground.play.*;
+import play.CustIO;
 
 public class BigInteger {
 	
@@ -7,8 +7,10 @@ public class BigInteger {
 	
 	private void setNum(char a[]) {
 		length = a.length;
+		int b = length - 1;
 		for(int i = 999; i>length-1; i--) {
-			
+			Num[i] = a[b];
+			b--;
 		}
 	}
 	
@@ -44,9 +46,7 @@ public class BigInteger {
 	 */
 	public BigInteger(char a[]) {
 		Num = new char[1000];
-		Num = a;
-		length = a.length;
-		System.out.print(a[0]);
+		setNum(a);
 	}
 	/**
 	 * 
@@ -55,8 +55,7 @@ public class BigInteger {
 	public BigInteger(String a) {
 		char b[]=a.toCharArray();
 		Num = new char[1000];
-		Num = b;
-		length = b.length;
+		setNum(b);
 	}
 	/**
 	 * 
@@ -65,8 +64,8 @@ public class BigInteger {
 	public BigInteger(long n) {
 		Num = new char[1000];
 		String b = ""+n+"";
-		Num = b.toCharArray();
-		length = b.length();
+		setNum(b.toCharArray());
+		
 	}
 	/**
 	 * 
@@ -113,9 +112,15 @@ public class BigInteger {
 	 * @return
 	 */
 	public BigInteger add(BigInteger a) {
-		int bigLen, diff, num;						// bigLen holds the value of len for the longer big int
+		int end = 999 - length, bigLen; 									// index for the largest value diget of the bigint
+		char[] b = new char[1000];
 		boolean carry=false, sLen = (this.length == a.length);
-		char b[] = new char[1000];
+		//This was added in branch "feature"
+		and this;
+		
+		/*
+		int diff, num;						// bigLen holds the value of len for the longer big int
+		
 		if(!sLen){										// lengths are not the same
 			if(isBiggerThan(a)) {						// find the longest length to find where the addition needs to start.
 				bigLen = this.length;
@@ -159,6 +164,7 @@ public class BigInteger {
 				
 			}
 		}
+		*/
 			
 		return new BigInteger(b);
 		
